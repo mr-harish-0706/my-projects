@@ -1,53 +1,207 @@
-Title: Student Management System
+import os
+# File paths
+STUDENTS_FILE = "students.txt"
+RESULTS_FILE = "results.txt"
+GRADES_FILE = "grades.txt"
 
-Overview:
-This Python-based project provides a simple and interactive Student Management System that allows administrators and students to manage and view academic records. Designed as a CLI (Command-Line Interface) application, it facilitates core operations like student registration, result entry, grade calculation, and more.
+# login credential for admin
+admin_ID = "admin101@mrs.edu.in"
+admin_pwd = "roja_loves_raja"
 
-Key Features:
+#login credential for student
+regno = "RA123456789"
+std_pwd = "raja_loves_roja"
 
-1. Admin Module:
+# List of primary subjects
+PRIMARY_SUBJECTS = ["Mathematics","English", "programming", "Biology", "Careear Development"]
 
-Add student details (roll number, name, DOB, email).
+# Function to read data from a file and return it as a list of lines
+def read_file(file_name):
+    if not os.path.exists(file_name):
+        return []
+    with open(file_name, 'r') as file:
+        return file.readlines()
 
-Record exam results for primary subjects.
+# Function to save data to a file
+def write_file(file_name, data):
+    with open(file_name, 'a') as file:
+        file.write(data + '\n')
 
-View all students' results or specific student's results.
+# Function to display student information
+def display_students():
+    students = read_file(STUDENTS_FILE)
+    if not students:
+        print("No students found.")
+    else:
+        print("Student List:")
+        for student in students:
+            print(student.strip())
 
-Calculate and store grades based on performance.
+# Function to add a student
+def add_student():
+    roll_number = input("Enter roll number: ")
+    first_name = input("Enter first name: ")
+    last_name = input("Enter last name: ")
+    dob = input("Enter date of birth (YYYY-MM-DD): ")
+    email = input("Enter email address: ")
 
-View grades of individual students.
+    student_data = f"{roll_number}, {first_name}, {last_name}, {dob}, {email}"
+    write_file(STUDENTS_FILE, student_data)
+    print(f"Student {first_name} {last_name} added successfully!")
 
-2. Student Module:
+# Function to add results for all 5 subjects
+def add_results():
+    roll_number = input("Enter roll number: ")
+    marks = []
+    print(f"        Not Editable        ")
+    print(f"Enter marks for the following subjects:")
+    for subject in PRIMARY_SUBJECTS:
+        mark = input(f"{subject}: ")
+        marks.append(mark)
 
-Access personal results.
+    # Store results in the results file
+    result_data = f"{roll_number}, " + ", ".join(marks)
+    write_file(RESULTS_FILE, result_data)
+    print(f"Results for roll number {roll_number} added successfully.")
 
-View individual grades.
+# Function to view all results
+def view_all_results():
+    results = read_file(RESULTS_FILE)
+    if not results:
+        print("No results found.")
+    else:
+        print("All Exam Results:")
+        for result in results:
+            print(result.strip())
 
-3. File-based Storage:
+# Function to view individual student's results
+def view_student_results():
+    roll_number = input("Enter roll number: ")
+    results = read_file(RESULTS_FILE)
+    found = False
+    for result in results:
+        if result.startswith(roll_number):
+            print(result.strip())
+            found = True
+    if not found:
+        print(f"No results found for roll number {roll_number}.")
 
-Uses text files (students.txt, results.txt, and grades.txt) for data persistence.
+# Function to calculate grade based on average marks
+def calculate_grade(marks):
+    marks = [int(m) for m in marks]
+    avg_marks = sum(marks) / len(marks)
 
-4. Login System:
+    if avg_marks >= 90:
+        return 'A'
+    elif avg_marks >= 75:
+        return 'B'
+    elif avg_marks >= 50:
+        return 'C'
+    else:
+        return 'D'
 
-  Secure admin and student access with pre-defined credentials.
+# Function to calculate and store grades for each student
+def calculate_grades():
+    results = read_file(RESULTS_FILE)
+    grades = {}
 
-Primary Subjects:
+    for result in results:
+        data = result.strip().split(", ")
+        roll_number = data[0]
+        marks = data[1:]
 
-              Mathematics
-              
-              English
-              
-              Programming
-              
-              Biology
-              
-              Career Development
+        grade = calculate_grade(marks)
+        write_file(GRADES_FILE, f"{roll_number}, {grade}")
+        print(f"Grades calculated and stored for roll number {roll_number}.")
 
-Technologies Used:
+# Function to view student's grade
+def view_student_grade():
+    roll_number = input("Enter roll number: ")
+    grades = read_file(GRADES_FILE)
+    found = False
+    for grade in grades:
+        if grade.startswith(roll_number):
+            print(grade.strip())
+            found = True
+    if not found:
+        print(f"No grade found for roll number {roll_number}.")
 
-      Python
-      
-      File Handling
+# Main menu for admin operations
+def admin_menu():
+    Admin_id = input("Enter adminID :")
+    Admin_pwd = input("Enter adminpwd :")
+    if Admin_id == admin_ID and Admin_pwd == admin_pwd:
+        while True:
+            print("\n--- Admin Menu ---")
+            print("1. Add Student")
+            print("2. Add Exam Result")
+            print("3. View All Results")
+            print("4. View Student's Results")
+            print("5. Calculate Grades")
+            print("6. View Student's Grade")
+            print("7. Exit")
+            
+            choice = input("Enter your choice: ")
 
+            if choice == "1":
+                add_student()
+            elif choice == "2":
+                add_results()
+            elif choice == "3":
+                view_all_results()
+            elif choice == "4":
+                view_student_results()
+            elif choice == "5":
+                calculate_grades()
+            elif choice == "6":
+                view_student_grade()
+            elif choice == "7":
+                break
+            else:
+                print("Invalid choice, please try again.")
+    else :
+        print()
+        print("---------------- CHECK YOUR CREDENTIALS ! ----------------")
+# Main menu for student operations
+def student_menu():
+    Std_id = input("Enter regester no :")
+    Std_pwd = input("Enter password :")
+    if Std_id == regno and Std_pwd == std_pwd:
+        while True:
+            print("\n--- Student Menu ---")
+            print("1. View My Results")
+            print("2. View My Grade")
+            print("3. Exit")
+            
+            choice = input("Enter your choice: ")
 
-This project is an excellent starting point for learning file handling, user authentication, and basic CRUD operations in Python.
+            if choice == "1":
+                view_student_results()
+            elif choice == "2":
+                view_student_grade()
+            elif choice == "3":
+                break
+            else:
+                print("Invalid choice, please try again.")
+
+# Main function to choose between admin and student
+def main():
+    while True:
+        print("\n--- MRS Vidhya Peedam ---")
+        print("1. Admin")
+        print("2. Student")
+        print("3. Exit")
+        
+        choice = input("Enter your choice: ")
+
+        if choice == "1":
+            admin_menu()
+        elif choice == "2":
+            student_menu()
+        elif choice == "3":
+            break
+        else:
+            print("Invalid choice, please try again.")
+
+if __name__ == "__main__":
+    main()
